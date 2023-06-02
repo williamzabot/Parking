@@ -92,8 +92,8 @@ def convertDictionary():
     dict = {}
     for i in range(1, 41):
         dict[f"Box {str(i)}"] = []
-    registrationConverted = []
     for box, registrations in vacancies.items():
+        registrationConverted = []
         for registration in registrations:
             registrationConverted.append(registration.toDict())
         dict[box].append(registrationConverted)
