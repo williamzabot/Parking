@@ -1,11 +1,8 @@
-"""Ao finalizar o programa, pergunte ao usuário se ele quer armazenar os dados em um arquivo TXT ou JSON.
-Ao iniciar o programa, verifique se o arquivo TXT e JSON já existem. Caso exista, pergunte ao usuário qual arquivo ele quer utilizar.
-"""
-
 from Parking import Parking
 from Registration import Registration
 from datetime import datetime
 from datetime import date
+import json
 
 parking = Parking()
 vacancies = parking.vacancies
@@ -29,12 +26,12 @@ Escolha: """))
 
 def doRegistration(plate, box):
     vacancies[box].append(Registration(plate, getDateAndTime()))
+    print(f"Seu carro foi estacionado no {box}")
 
 def choiceOne():
-    inputtedPlate = str(input("Insira sua placa: ")).strip()
+    inputtedPlate = str(input("Insira sua placa: ")).strip().upper()
     for box, registrations in vacancies.items():
         if len(registrations) == 0:
-            print(f"Seu carro foi estacionado no {box}")
             doRegistration(inputtedPlate, box)
             break
         elif len(registrations) > 0:
@@ -48,7 +45,8 @@ def choiceOne():
 
 
 def choiceTwo():
-    inputtedPlate = str(input("Insira sua placa: ")).strip()
+    inputtedPlate = str(input("Insira sua placa: ")).strip().upper()
+    exitPerformed = False
     for box, registrations in vacancies.items():
         if len(registrations) > 0:
             lastElement = registrations[-1]
@@ -56,10 +54,10 @@ def choiceTwo():
                 exit = getDateAndTime()
                 print(f"Este veículo: {inputtedPlate} está estacionado no {box}. Saída: {exit}")
                 lastElement.setExitTime(exit)
+                exitPerformed = True
                 break
-            else:
-                print("Placa não encontrada")
-                break
+    if not exitPerformed:
+        print("Placa não encontrada")
 
 
 def choiceThree():
@@ -67,11 +65,39 @@ def choiceThree():
         print(box)
         for registration in registrations:
             print(str(registration))
+    choice = str(input("""Você deseja armazenar essas informações num arquivo?
+    1 - Armazene num arquivo txt
+    2 - Armazene num arquivo json
+    Qualquer tecla - Não armazenar
+    Escolha: """))
+    if choice == "1":
+        saveFile("txt")
+    elif choice == "2":
+        saveFile("json")
 
 
 def getDateAndTime():
     currentDate = date.today().strftime('%d/%m/%Y')
     time = datetime.now().strftime('%H:%M')
     return f"{currentDate} {time}"
+
+def saveFile(extension):
+    fileName = f"parking.{extension}"
+    dict = convertDictionary()
+    with open(fileName, 'w') as file:
+        json.dump(dict, file, indent=4, separators=(", ", ": "))
+    print("Arquivo criado com sucesso!")
+
+def convertDictionary():
+    dict = {}
+    for i in range(1, 41):
+        dict[f"Box {str(i)}"] = []
+    registrationConverted = []
+    for box, registrations in vacancies.items():
+        for registration in registrations:
+            registrationConverted.append(registration.toDict())
+        dict[box].append(registrationConverted)
+    return dict
+
 
 menu()

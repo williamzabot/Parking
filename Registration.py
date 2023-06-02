@@ -10,6 +10,14 @@ class Registration:
         self.exitTime = exitTime
         self.active = False
 
+    def toDict(self):
+        exitTime = "Veiculo ainda na vaga" if self.active else self.exitTime
+        return {
+            'plate': self.plate,
+            'entryTime': self.entryTime,
+            'exitTime': exitTime
+        }
+
     def __str__(self):
-        exitTime = "Veículo ainda na vaga" if self.active else self.exitTime
+        exitTime = "Veiculo ainda na vaga" if self.active else self.exitTime
         return f"Placa: {self.plate}, Horário de entrada: {self.entryTime}, Saída: {exitTime}"
